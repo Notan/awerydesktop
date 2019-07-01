@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="12px" height="10px" viewBox="0 0 12 10" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 46.1 (44463) - http://www.bohemiancoding.com/sketch -->
+    <title>arrow-black@1x</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Design" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="login" transform="translate(-521.000000, -451.000000)" fill="#000000">
+            <g transform="translate(350.000000, 165.000000)" id="arrow-black">
+                <g transform="translate(86.000000, 270.000000)">
+                    <path d="M93.4509104,20 L91,17.5490896 L92.0490896,16.5 L96.5,20.9509104 L92.0490896,25.4018207 L91,24.3527311 L93.3527311,22 L85,22 L85,20 L93.4509104,20 Z"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

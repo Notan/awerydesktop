@@ -1,0 +1,88 @@
+{
+  "name": "Awery_ERP",
+  "version": "0.8.2",
+  "description": "\"Awery ERP\" desktop application",
+  "main": "index.js",
+  "author": "AweryAero",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "release": "npm run update:version && npm run pack:mac && npm run pack:win && npm run gh-publish",
+    "pack:mac": "electron-builder -m",
+    "pack:win": "electron-builder -w",
+    "gh-publish": "electron-builder --x64 --mac --win -p always",
+    "update:version": "node src/js/update-version.js",
+    "remove:exclusion": "rm -rf dist/"
+  },
+  "build": {
+    "appId": "com.awery.erp.desctop",
+    "productName": "Awery ERP",
+    "asar": false,
+    "files": [
+      "**/*",
+      "!dist${/*}",
+      "!not-used${/*}",
+      "!src/js/update-version.js"
+    ],
+    "mac": {
+      "icon": "./res/images/osx/ic_launcher.icns",
+      "identity": "Awery FZE (WL9ZP5DB23)"
+    },
+    "dmg": {
+      "title": "${productName} ${version} installer",
+      "icon": "./res/images/osx/ic_installer.icns",
+      "background": "./res/images/osx/install.png",
+      "artifactName": "Awery.ERP.Setup.${version}.osx.${ext}",
+      "iconSize": "120",
+      "contents": [
+        {
+          "x": 110,
+          "y": 350
+        },
+        {
+          "x": 540,
+          "y": 350,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
+    "win": {
+      "icon": "./res/images/win32/ic_launcher.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "Awery.ERP.Setup.${version}.win.${ext}"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "notan",
+        "repo": "awerydesktop",
+        "token": "a89ec6a54d676490c20abd1b078952b0cbdf0f03"
+      }
+    ]
+  },
+  "keywords": [
+    "awery",
+    "erp",
+    "awery-erp",
+    "desktop",
+    "erp-system"
+  ],
+  "devDependencies": {
+    "electron": "^5.0.5",
+    "electron-builder": "^20.44.4"
+  },
+  "dependencies": {
+    "adm-zip": "^0.4.13",
+    "draggabilly": "^2.2.0",
+    "electron-updater": "^4.0.6",
+    "express": "^4.16.3",
+    "flash-player-loader": "^1.2.0",
+    "http": "0.0.0",
+    "jquery": "^3.4.1"
+  }
+}

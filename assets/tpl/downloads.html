@@ -1,0 +1,19 @@
+<div style="margin: auto; text-align: center;" ng-controller="DownloadsController" id="downloads">
+    <img src="assets/img/awery_erp.svg" class="awery-logo">
+    <div class="downloads">
+        <input type="text" placeholder="Search {{focused}}" class="form-control" ng-model="search" id="search">
+        <a href class="clear-all-downloads" ng-click="clearAllDownloads();">Clear downloads</a>
+        <div class="downloads-scroll">
+            <div class="download" ng-repeat="(key, download) in $root.downloads" ng-show="download.show" ng-click="openDownload(key)" ng-class="{'fadeInDown animated':download.new}">
+                <button class="delete" ng-click="deleteDownload(download.id)"></button>
+                <div class="icon">
+                    <i class="fa" ng-class="download.icon" aria-hidden="true"></i>
+                </div>
+                <div class="name">{{download.name}}</div>
+                <div class="date">{{download.date}}</div>
+                <div class="size">{{download.sizeText}}</div>
+                <div class="link" ng-click="openDownloadInFinder(key)">{{download.link}}</div>
+            </div>
+        </div>
+    </div>
+</div>

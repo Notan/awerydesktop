@@ -1,0 +1,22 @@
+<div style="margin: auto; text-align: center;" ng-controller="DashboardController" id="dashboard">
+    <img src="assets/img/awery_erp.svg" class="awery-logo" ng-click="openAwerySite()">
+    <div class="clearfix"></div>
+    <a ui-sref="app.add" class="add-new-system">Add new system</a>
+    <div class="clearfix"></div>
+    <div style="font-size: 0; margin-top: 10px;">
+        <button class="awery-switch" ng-class="{'active':$root.loadFrom=='local'}" ng-click="$root.loadFrom=canSelectLocal?'local':'cdn'">Local</button>
+        <button class="awery-switch" ng-class="{'active':$root.loadFrom=='cdn'}" ng-click="$root.loadFrom='cdn'">Cloud</button>
+    </div>
+    <div class="clearfix"></div>
+    <div class="systems">
+        <div class="system" ng-repeat="(key, system) in $root.systems" ng-click="$root.loginToSystem(system.id, '')">
+            <img ng-src="{{system.logo}}" ng-show="system.logo!=='' && system.logo!==null" class="logo">
+            <div class="no-logo" ng-show="system.logo==='' || system.logo===null"></div>
+            <div class="name">{{system.name}}</div>
+            <div class="link">{{system.link}}</div>
+            <button class="edit" ng-click="$root.editSystemInfo(key)"></button>
+            <div class="need-authorize" ng-show="system.authorizeChecking"><i class="fa fa-spinner fa-spin fa-fw"></i></div>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+</div>

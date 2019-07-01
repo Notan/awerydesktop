@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="12px" height="12px" viewBox="0 0 12 12" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 46.1 (44463) - http://www.bohemiancoding.com/sketch -->
+    <title>add@1x</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="button" transform="translate(-20.000000, -9.000000)" fill="#000000">
+            <path d="M27,14 L27,9 L25,9 L25,14 L20,14 L20,16 L25,16 L25,21 L27,21 L27,16 L32,16 L32,14 L27,14 Z" id="add"></path>
+        </g>
+    </g>
+</svg>

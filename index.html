@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" data-ng-app="app">
+<head>
+    <meta charset="utf-8"/>
+    <title>AWERY</title>
+    <meta name="description" content="Angularjs, Html5, Music, Landing, 4 in 1 ui kits package"/>
+    <meta name="keywords"
+          content="AngularJS, angular, bootstrap, admin, dashboard, panel, app, charts, components,flat, responsive, layout, kit, ui, route, web, app, widgets"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+    <link rel="stylesheet" href="assets/libs/assets/animate.css/animate.css" type="text/css"/>
+    <link rel="stylesheet" href="assets/libs/assets/font-awesome/css/font-awesome.min.css" type="text/css"/>
+    <link rel="stylesheet" href="assets/libs/assets/simple-line-icons/css/simple-line-icons.css" type="text/css"/>
+    <link rel="stylesheet" href="assets/libs/jquery/bootstrap/dist/css/bootstrap.css" type="text/css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="assets/libs/angular/angularjs-toaster/toaster.css" type="text/css"/>
+    <link rel="stylesheet" href="assets/css/styles.css" type="text/css"/>
+
+    <link rel="stylesheet" href="assets/css/app.min.css">
+</head>
+<body ng-controller="AppCtrl">
+<div class="app" id="app" ui-view></div>
+
+<script src="assets/libs/jquery/jquery/dist/jquery.js"></script>
+<script src="assets/libs/angular/angular/angular.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/config.lazyload.js"></script>
+<script src="assets/js/config.router.js"></script>
+<script src="assets/js/main.js"></script>
+
+
+<script src="assets/libs/angular/angular-animate/angular-animate.js"></script>
+<script src="assets/libs/angular/angular-aria/angular-aria.js"></script>
+<script src="assets/libs/angular/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+<script src="assets/libs/angular/angular-bootstrap-nav-tree/dist/abn_tree_directive.js"></script>
+<script src="assets/libs/angular/angular-cookies/angular-cookies.js"></script>
+<script src="assets/libs/angular/angular-file-upload/angular-file-upload.js"></script>
+<script src="assets/libs/angular/angular-messages/angular-messages.js"></script>
+<script src="assets/libs/angular/angular-resource/angular-resource.js"></script>
+<script src="assets/libs/angular/angular-sanitize/angular-sanitize.js"></script>
+<script src="assets/libs/angular/angular-touch/angular-touch.js"></script>
+<script src="assets/libs/angular/ngstorage/ngStorage.js"></script>
+<script src="assets/libs/angular/oclazyload/dist/ocLazyLoad.js"></script>
+<script src="assets/js/config.lazyload.js"></script>
+<script src="assets/libs/angular/angular-ui-router/release/angular-ui-router.js"></script>
+<script src="assets/libs/angular/angular-ui-utils/ui-utils.js"></script>
+<script src="assets/libs/jquery/jquery/dist/jquery.js"></script>
+<script src="assets/libs/angular/angularjs-toaster/toaster.js"></script>
+<!--<script src="node_modules/electron/dist/Electron.app/Contents/Resources/electron.asar"></script>-->
+
+<script src="assets/js/custom.js"></script>
+
+<!-- Lazy loading -->
+<script>
+    const {ipcRenderer} = require('electron');
+    ipcRenderer.on('upd-message', function (e, text) {
+        console.log('Message from updater: ', text);
+    });
+</script>
+</body>
+</html>

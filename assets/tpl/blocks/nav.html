@@ -1,0 +1,145 @@
+<!-- list -->
+<ul class="nav">
+    <li class="hidden-folded padder m-t m-b-sm text-muted text-xs">
+    <span >General menu</span>
+    </li>
+    <li>
+    <a ui-sref="app.dashboard">
+      <i class="fa fa-area-chart text-default-dker"></i>
+      <span class="font-bold" >Dashboard</span>
+    </a>
+    </li>
+    <li>
+    <a ui-sref="app.dashboard">
+      <i class="fa fa-calendar-check-o text-default-dker"></i>
+      <span class="font-bold" >My reports</span>
+    </a>
+    </li>
+    <li>
+    <a ui-sref="app.dashboard">
+      <i class="fa fa-folder-open text-default-dker"></i>
+      <span class="font-bold" >My projects</span>
+    </a>
+    </li>
+    <li>
+    <a ui-sref="app.dashboard">
+      <i class="fa fa-users text-default-dker"></i>
+      <span class="font-bold" >My teams</span>
+    </a>
+    </li>
+
+
+    <li class="line dk" ng-show="$root.user.leader>0"></li>
+    <li class="hidden-folded padder m-t m-b-sm text-muted text-xs" ng-show="$root.user.leader>0">
+      <span >Project leader</span>
+    </li>
+    <li ng-show="$root.user.leader>0">
+      <a ui-sref="app.dashboard">
+        <i class="fa fa-folder-open text-info-dker"></i>
+        <span class="font-bold" >Projects</span>
+      </a>
+    </li>
+    <li ng-show="$root.user.leader>0">
+      <a ui-sref="app.dashboard">
+        <i class="fa fa-comments-o text-info-dker"></i>
+        <span class="font-bold" >Notifications</span>
+      </a>
+    </li>
+    <li ng-show="$root.user.leader>0">
+      <a ui-sref="app.dashboard">
+        <i class="fa fa-calendar-check-o text-info-dker"></i>
+        <span class="font-bold" >Reports</span>
+      </a>
+    </li>
+
+
+
+    <li class="line dk" ng-show="$root.user.super_admin"></li>
+    <li class="hidden-folded padder m-t m-b-sm text-muted text-xs" ng-show="$root.user.super_admin">
+      <span>Super admin</span>
+    </li>
+    <li ng-show="$root.user.super_admin">
+      <a ui-sref="app.dashboard">
+        <i class="fa fa-industry text-warning-dker"></i>
+        <span class="font-bold">Companies</span>
+      </a>
+    </li>
+    <li ng-show="$root.user.super_admin">
+      <a ui-sref="app.dashboard">
+        <i class="fa fa-list-alt text-warning-dker"></i>
+        <span class="font-bold">Dropdowns</span>
+      </a>
+    </li>
+    <li ng-show="$root.user.super_admin">
+      <a ui-sref="app.dashboard">
+        <i class="fa fa-comments-o text-warning-dker"></i>
+        <span class="font-bold">Notifications</span>
+      </a>
+    </li>
+    <li ng-show="$root.user.super_admin">
+      <a ui-sref="app.dashboard">
+        <i class="fa fa-file-text-o text-warning-dker"></i>
+        <span class="font-bold">Not. Templates</span>
+      </a>
+    </li>
+    <li ng-show="$root.user.super_admin">
+      <a ui-sref="app.dashboard">
+        <i class="fa fa-folder-open text-warning-dker"></i>
+        <span class="font-bold">Projects</span>
+      </a>
+    </li>
+    <li ng-show="$root.user.super_admin">
+      <a ui-sref="app.dashboard">
+        <i class="fa fa-question-circle text-warning-dker"></i>
+        <span class="font-bold">Questions</span>
+      </a>
+    </li>
+    <li ng-show="$root.user.super_admin">
+      <a ui-sref="app.dashboard">
+        <i class="fa fa-users text-warning-dker"></i>
+        <span class="font-bold">Teams</span>
+      </a>
+    </li>
+    <li ng-show="$root.user.super_admin">
+      <a ui-sref="app.dashboard">
+        <i class="fa fa-user-plus text-warning-dker"></i>
+        <span class="font-bold">Users</span>
+      </a>
+    </li>
+    <li ng-show="$root.user.super_admin">
+      <a ui-sref="app.dashboard">
+        <i class="fa fa-calendar-check-o text-warning-dker"></i>
+        <span class="font-bold">Reports</span>
+      </a>
+    </li>
+
+  <li class="line dk hidden-folded"></li>
+
+  <li class="hidden-folded padder m-t m-b-sm text-muted text-xs">          
+    <span >Account</span>
+  </li>
+
+  <li ng-class="{'active':menu.profile}">
+    <a href class="auto" ng-click="menu.profile=!menu.profile">
+      <span class="pull-right text-muted">
+        <i class="fa fa-fw fa-angle-right text"></i>
+        <i class="fa fa-fw fa-angle-down text-active"></i>
+      </span>
+      <i class="fa fa-user text-success-lter"></i>
+      <span >Profile</span>
+    </a>
+    <ul class="nav nav-sub dk">
+      <li>
+        <a ui-sref="app.settings">
+          <span>Settings</span>
+        </a>
+      </li>
+      <li>
+        <a ng-click="logOut()">
+          <span>Log Out</span>
+        </a>
+      </li>
+    </ul>
+  </li>
+</ul>
+<!-- / list -->

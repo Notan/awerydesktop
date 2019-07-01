@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>AWERY ERP</title>
+    </head>
+
+    <body style="margin: 0; overflow: hidden; position:absolute; width:100%; height:100%; top:0; left:0;">
+        <iframe id="rootIFrame" name="rootIFrame" style="width: 100%; height: 100%; position: absolute; border: none"></iframe>
+
+        <form id="serialForm" method="POST" action="">
+            <input id="serial" name="serial" type="hidden"/>
+        </form>
+
+        <script type="text/javascript">
+            let {ipcRenderer} = require('electron');
+
+            ipcRenderer.send('on-flex-report-loader-ready');
+
+
+            ipcRenderer.on('load-flex-report', (event, url, postData) => {
+                loadReport(url, postData)
+            });
+
+            function loadReport(url, postData) {
+                let form = document.getElementById('serialForm');
+                console.log('form', form.name);
+                form.action = url;
+                // ipcRenderer.send('on-file-retrieved');
+                // form.addEventListener();
+                let serial = document.getElementById('serial');
+                serial.value = postData;
+                console.log('form_serial', serial.value);
+                form.submit();
+            }
+
+            window.addEventListener("dragover", function (e) {
+                e = e || event;
+                e.preventDefault()
+            }, false);
+            window.addEventListener("drop", function (e) {
+                e = e || event;
+                e.preventDefault()
+            }, false);
+        </script>
+    </body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" data-ng-app="app">
+<head>
+    <meta charset="utf-8"/>
+    <title>Awery ACM updater</title>
+    <meta name="description" content="Angularjs, Html5, Music, Landing, 4 in 1 ui kits package"/>
+    <meta name="keywords"
+          content="AngularJS, angular, bootstrap, admin, dashboard, panel, app, charts, components,flat, responsive, layout, kit, ui, route, web, app, widgets"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+    <link rel="stylesheet" href="../../assets/libs/assets/animate.css/animate.css" type="text/css"/>
+    <link rel="stylesheet" href="../../assets/libs/assets/font-awesome/css/font-awesome.min.css" type="text/css"/>
+    <link rel="stylesheet" href="../../assets/libs/assets/simple-line-icons/css/simple-line-icons.css" type="text/css"/>
+    <link rel="stylesheet" href="../../assets/libs/jquery/bootstrap/dist/css/bootstrap.css" type="text/css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../../assets/libs/angular/angularjs-toaster/toaster.css" type="text/css"/>
+    <link rel="stylesheet" href="../../assets/css/styles.css" type="text/css"/>
+
+    <link rel="stylesheet" href="../../assets/css/app.min.css">
+</head>
+<body>
+<div class="app updater">
+
+    <div id="app" class="app-content-body fade-in-top" style="height: 100%; overflow: auto;">
+
+        <div style="margin: auto; text-align: center;">
+            <div class="form-box loading" id="box">
+                <h1 id="progressText">Start update</h1>
+                <button>Restart</button>
+                <div class="progress">
+                    <div class="progress-inner" id="progress"></div>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    let stepsDescriptions = ["Removing old patch", "Downloading UPD patch file", "Flashing patch", "Removing patch", "Update complete!"];
+    let acmUpdate = require('../js/AcmUpdater');
+    let ipcRenderer = require('electron').ipcRenderer;
+    try {
+        acmUpdate.update(
+            function onProgress(step) {
+                document.getElementById('progress').style.width = (100 - (step * 25)) + '%';
+                document.getElementById('progressText').innerHTML = stepsDescriptions[step];
+                console.log(step, stepsDescriptions[step]);
+            },
+            function onSuccess() {
+                setTimeout(function () {
+                    ipcRenderer.send('update-closed');
+                    window.close();
+                }, 500);
+            }, function onError(message) {
+                console.log(message);
+                document.getElementById('box').classList.add('error');
+                document.getElementById('progressText').innerHTML = 'Something went wrong...';
+                return false;
+            });
+    } catch (e) {
+        document.getElementById('box').classList.add('error');
+        console.error(e);
+    }
+</script>
+<!-- Lazy loading -->
+</body>
+</html>

@@ -1,0 +1,23 @@
+<div style="margin: auto; text-align: center;" ng-controller="AddSystemController">
+    <img src="assets/img/awery_erp.svg" class="awery-logo">
+    <div class="form-box">
+        <a ui-sref="app.dashboard" class="back">&nbsp;</a>
+        <div class="form-group">
+            <label>Name</label>
+            <input type="text" ng-model="system.name" class="form-control" placeholder="NAME">
+        </div>
+        <div class="form-group">
+            <label>Link</label>
+            <input type="text" ng-model="system.link" class="form-control" placeholder="LINK">
+        </div>
+        <div class="form-group">
+            <label>Login</label>
+            <input type="text" ng-model="system.login" class="form-control" placeholder="LOGIN">
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" ng-model="system.password" class="form-control" placeholder="PASSWORD" ng-keyup="maybeLogin($event);">
+        </div>
+        <button ng-click="addSystem()" class="awery-button gradient-button" ng-disabled="!systemValid">Add and login</button>
+    </div>
+</div>

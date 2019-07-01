@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Awery ERP</title>
+    <link href="../../awr-modules/chrome-tabs/css/chrome-tabs.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/app.css">
+
+    <script type="text/javascript">
+        const {ipcRenderer, shell} = require('electron');
+        let erpBaseUrl;
+    </script>
+</head>
+
+<body scroll="no">
+<form id="serialFormForXml" method="POST" action="">
+    <input id="serial" name="serial" type="hidden"/>
+</form>
+
+<div class="mock-browser">
+    <div class="chrome-tabs">
+        <div class="chrome-tabs-content"></div>
+        <div class="ch-buttons">
+            <button id="save-img" class="" style="display: none;" onclick="saveImg()">
+                <i class="fa fa-picture-o" aria-hidden="true"></i>
+            </button>
+            <button class="visible" onclick="openDownloadsPage(true)">
+                <i class="fa fa-download" aria-hidden="true"></i>
+            </button>
+        </div>
+        <div class="chrome-tabs-bottom-bar"></div>
+    </div>
+</div>
+
+<div class="etabs-views"></div>
+
+<script type="text/javascript" src="../js/chTabs.js"></script>
+<script type="text/javascript">
+    if (navigator.platform.toUpperCase().indexOf('MAC') > -1)
+        document.body.classList.add('mac');
+
+    let webview;
+    let show = false;
+    let defaultIcon = 'fa fa-spinner fa-spin fa-fw';
+
+    function saveImg() {
+        getActiveTab().webview.downloadURL(getActiveTab().webview.src);
+    }
+
+    function openDownloadsPage(closeExtMenu = false) {
+        openChromeTab(`file://${__dirname}/../../index.html#/app/downloads`, {
+            title: 'Downloads',
+            icon: 'fa fa-download'
+        });
+    }
+
+    function printToPdfViewer(obj = {}) {
+        let xhr = new XMLHttpRequest();
+        xhr.open("POST", obj.url, true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == XMLHttpRequest.DONE && xhr.status == 200) {
+                let filename = xhr.getResponseHeader('content-disposition').substr(xhr.getResponseHeader('content-disposition').indexOf('filename="') + 'filename="'.length);
+                filename.substr(0, filename.length - 1);
+
+                const qs = require("querystring");
+                const param = qs.stringify({file: `${xhr.responseURL}&filename=${encodeURI(filename)}`});
+                getActiveTab().webview.src = `file://${__dirname}/../../awr-modules/pdfjs/web/viewer.html?${param}`;
+
+                console.log(`file://${__dirname}/../../awr-modules/pdfjs/web/viewer.html?${param}`);
+            }
+        };
+        xhr.onload = function () {
+            chromeTabs.updateTab(chromeTabs.activeTabEl, {
+                title: obj.reportName,
+                icon: getReportIcon('pdf')
+            });
+        };
+        xhr.send(obj.postData ? obj.postData : obj.url);
+    }
+
+    function getReportSerial(url) {
+        return new Promise(function (resolve, reject) {
+            let xhr = new XMLHttpRequest();
+            xhr.onload = function () {
+                if (xhr.readyState == XMLHttpRequest.DONE && xhr.status == 200) {
+                    let str;
+                    try {
+                        str = JSON.parse(xhr.responseText.replace('/print/?serial=', ''));
+                    } catch (e) {
+                        reject({status: 'error1'});
+                    }
+                    resolve({status: 'success', res: str});
+                }
+            };
+            xhr.onerror = function () {
+                reject({status: 'error2'});
+            };
+            xhr.open("GET", url + '&show_serial', true);
+            xhr.send();
+        });
+    }
+
+    function isImage(url) {
+        return new Promise(function (resolve, reject) {
+            let timeout = 5000;
+            let timer, img = new Image();
+            img.onerror = img.onabort = function () {
+                clearTimeout(timer);
+                reject('error');
+            };
+            img.onload = function () {
+                clearTimeout(timer);
+                resolve('success');
+            };
+            timer = setTimeout(function () {
+                img.src = '//!!!!/test.jpg';
+                reject('timeout');
+            }, timeout);
+            img.src = url;
+        });
+    }
+
+    function getReportIcon(report_type) {
+        let icon;
+        switch (report_type) {
+            case 'pdf':
+                icon = 'fa fa-file-pdf-o';
+                break;
+            case 'xls':
+            case 'xlsx':
+                icon = 'fa fa-file-excel-o';
+                break;
+            case 'doc':
+            case 'docx':
+                icon = 'fa fa-file-word-o';
+                break;
+            case 'html':
+            case 'csv':
+                icon = 'fa fa-file-code-o';
+                break;
+            default:
+                icon = 'fa fa-file-text-o';
+                break;
+        }
+        return icon;
+    }
+
+    ipcRenderer.send('erp-page-ready', '');
+
+    ipcRenderer.on('upd-message', function (e, text) {
+        console.log('Message from updater: ', text);
+    });
+
+    ipcRenderer.on('open-file', function (event, path) {
+        shell.openItem(path);
+    });
+
+    ipcRenderer.on('init-erp-system', function (event, url, token, erp_name) {
+        erpBaseUrl = url;
+        console.log('EVENT init-erp-system:', erpBaseUrl);
+
+        localStorage.clear();
+
+        setTimeout(function () {
+            openChromeTab(erpBaseUrl, {title: erp_name + ' ERP'}, {closable: false});
+            webview = document.querySelector('webview');
+            initWebViewListeners();
+        }, 500);
+    });
+
+    // open downloads from menu
+    ipcRenderer.on('request-to-display-downloads', function (event, args) {
+        openDownloadsPage();
+    });
+
+    ipcRenderer.on('request-to-print-current-page', function (event, args) {
+        getActiveTab().webview.getWebContents().print();
+    });
+
+    ipcRenderer.on('toggle-min-max-screen', function (event, fullScreen) {
+        let chTabs = document.querySelector('.chrome-tabs');
+        chTabs.style.paddingLeft = fullScreen ? '' : '70px';
+    });
+
+    function initWebViewListeners() {
+        webview.addEventListener('console-message', (e) => {
+            console.log('ERP_PAGE_LOG:', e);
+        });
+
+        webview.addEventListener('ipc-message', function (e) {
+            console.log('ipc-message', e);
+            if (event.channel.link != null && event.channel.reportName == null) {
+                onOpenUrlInExternalBrowser(event.channel.link)
+            } else {
+                console.log('AtrL::', event.channel.url);
+                if (event.channel.url.indexOf('/system/downloads/awb_file.php?') > -1) {
+                    //force save attachment as file
+                    webview.downloadURL(event.channel.url);
+                } else {
+                    onOpenReport(event.channel.url, event.channel.postRequest, event.channel.reportName);
+
+                    let _reportName = event.channel.reportName;
+                    let promise = isImage(event.channel.url);
+                    promise.then(function (res) {
+                        chromeTabs.updateTab(chromeTabs.activeTabEl, {
+                            title: _reportName,
+                            icon: 'fa fa-picture-o'
+                        });
+                        let btn = document.querySelector('#save-img');
+                        btn.classList.add('visible');
+                    });
+                }
+            }
+        });
+
+        webview.addEventListener('open-file', function (event, path) {
+            shell.openItem(path);
+            console.log('open-file');
+        });
+
+        ipcRenderer.on('addNewDownload', function (event, args) {
+            console.log('addNewDownload');
+            console.log(args);
+
+            addDownload(args.filename, args.path, args.size, args.date);
+            if (args.filename && (args.filename.indexOf('xls') > 1 || args.filename.indexOf('xlsx') > 1)) {
+                removeActiveTab();
+                openDownloadsPage();
+            }
+        });
+
+        setFlex();
+    }
+
+    function onOpenUrlInExternalBrowser(link) {
+        console.log('onOpenUrlInExternalBrowser:\nlink:' + link);
+        shell.openExternal(link);
+    }
+
+    function onOpenReport(url, postRequest, reportName) {
+        console.log('onNeedToOpenReport:');
+        console.log('url:', url);
+        console.log('postRequest:', postRequest);
+        console.log('reportName:', reportName);
+        if (postRequest == null) {
+            if (url.indexOf('/print/?report=') > -1) { // for new reports
+                let promise = getReportSerial(url);
+                promise.then(function (res) {
+                    let tab = openChromeTab(`about:blank`, {title: reportName, icon: defaultIcon});
+                    if (res.res.report_type === 'pdf') {
+                        printToPdfViewer({url: url, reportName: reportName});
+                        // tab.webview.src = url;
+                    } else {
+                        tab.webview.src = url;
+                    }
+                });
+            } else {
+                openChromeTab(url, {title: reportName, icon: defaultIcon});
+            }
+        } else {
+            openNewFlexReportTab(url, reportName, postRequest);
+        }
+    };
+
+    function setFlex() {
+        require('../js/server');
+    }
+
+    function openNewFlexReportTab(url, frameName, postData) {
+        let isPdfReport = false;
+        try {
+            let reportSerial = JSON.parse(atob(postData.serial.substr(32)));
+            console.log('reportSerial: ', reportSerial);
+            if (typeof reportSerial == 'object' && reportSerial.report_type !== undefined) {
+                isPdfReport = reportSerial.report_type == 'pdf';
+            }
+        } catch (error) {
+            console.warn(error);
+        }
+
+        if (isPdfReport) {
+            openChromeTab(`about:blank`, {title: frameName, icon: defaultIcon});
+            printToPdfViewer({url: url, postData: 'serial=' + postData.serial, reportName: frameName});
+        } else {
+            ipcRenderer.send('flex-report-container', url, postData.serial);
+            let tab = openChromeTab(`file://${__dirname}/flex_report_loader.html`, {
+                title: frameName,
+                icon: defaultIcon
+            });
+
+            tab.webview.addEventListener('did-finish-load', function () {
+                let icon = 'fa fa-file-text-o';
+                try {
+                    let reportSerial = JSON.parse(atob(postData.serial.substr(32)));
+                    if (typeof reportSerial == 'object' && reportSerial.report_type !== undefined) {
+                        icon = getReportIcon(reportSerial.report_type);
+                    }
+                } catch (error) {
+                    console.warn(error);
+                }
+                chromeTabs.updateTab(chromeTabs.activeTabEl, {title: frameName, icon: icon});
+            });
+        }
+    }
+
+    let db = openDatabase("AWERY", "0.1", "A list of systems.", 1000, function (e) {
+        if (db) {
+
+            db.transaction(function (tx) {
+                tx.executeSql("SELECT * FROM systems ORDER BY name ASC", [],
+                    function (tx, result) {
+                        $rootScope.updateSystemsList();
+                    }, function (tx, error) {
+                        tx.executeSql("CREATE TABLE systems (id INT UNIQUE, name TEXT, link TEXT UNIQUE, login TEXT, cookie TEXT, logo TEXT)", [], null, null);
+                    });
+            });
+
+            db.transaction(function (tx) {
+                tx.executeSql("SELECT * FROM downloads ORDER BY id DESC", [],
+                    function (tx, result) {
+                        $rootScope.updateDownloadsList();
+                    }, function (tx, error) {
+                        tx.executeSql("CREATE TABLE downloads (id INT UNIQUE, name TEXT, link TEXT, size FLOAT, date DATE)", [], null, null);
+                    });
+            });
+        }
+    });
+
+    addDownload = function addDownload(name, link, size, date) {
+        if (name === '' || link === '' || size === '' || date === '') {
+            scope.pop('error', 'Database message', 'Fill all fields', 5000);
+            return false;
+        }
+
+        db.transaction(function (tx) {
+            var id = new Date();
+            id = id.getTime();
+            tx.executeSql("INSERT INTO downloads (id, name, link, size, `date`) VALUES (?, ?, ?, ?, ?)",
+                [id, name, link, size, date],
+                function (result) {
+
+                }, function (tx, error) {
+                    console.log(error);
+                    scope.pop('error', 'Database message', error.message, 5000);
+                });
+        });
+    };
+</script>
+</body>
+</html>
