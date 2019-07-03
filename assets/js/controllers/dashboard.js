@@ -1,7 +1,7 @@
 'use strict';
 app.controller('DashboardController', ['$scope', '$http', '$rootScope', '$state', function ($scope, $http, $rootScope, $state) {
-
     var ipcRenderer = require('electron').ipcRenderer;
+    var compareVersions = require('compare-versions');
 
     $scope.system = {
         name: '',
@@ -14,6 +14,7 @@ app.controller('DashboardController', ['$scope', '$http', '$rootScope', '$state'
     $rootScope.updateSystemsList();
     $scope.cdnVersion = null;
     $scope.localVersion = null;
+    $scope.localNgVersion = null;
     $scope.autoLogin = false;
 
     $scope.addSystem = function () {
@@ -70,11 +71,35 @@ app.controller('DashboardController', ['$scope', '$http', '$rootScope', '$state'
         }).error(function (data, status, headers) {
             console.log('E', data);
         });
-    }
+    };
+
+    $scope.getNgCDNVersion = function () {
+        $http({
+            method: 'GET',
+            url: 'https://cdn.awery.com/appsalpha/version.txt',
+        }).success(function (data, status, headers) {
+            data = data.match(/\"([0-9\.]*)\"/);
+            data = data && data.length > 1 ? data[1] : 0;
+
+            if (($scope.localNgVersion === 0 || compareVersions.compare(data, $scope.localNgVersion, '>'))) {
+                ipcRenderer.send('update-ng-local-version', data || 0);
+            } else {
+                $rootScope.loadFrom = 'local';
+                $scope.canSelectLocal = true;
+            }
+        }).error(function (data, status, headers) {
+            console.log('E', data);
+        });
+    };
 
     ipcRenderer.on('set-version-as', function (event, args) {
         $scope.localVersion = parseFloat(args);
         $scope.getCDNVersion();
+    });
+
+    ipcRenderer.on('set-ng-version-as', function (event, args) {
+        $scope.localNgVersion = args;
+        $scope.getNgCDNVersion();
     });
 
     ipcRenderer.on('update-complete', function (event) {

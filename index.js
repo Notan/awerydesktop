@@ -1,5 +1,5 @@
 const electron = require('electron');
-const {app, Tray, Menu, dialog, ipcMain, shell} = require('electron');
+const {app, Tray, Menu, dialog, ipcMain, shell, Notification} = require('electron');
 const path = require('path');
 const appMenu = require('./app_menu.js');
 const userDataPath = (electron.app || electron.remote.app).getPath('userData');
@@ -26,8 +26,20 @@ autoUpdater.on('download-progress', (progressObj) => {
     let log_message = `Downloaded: ${progressObj.percent.toFixed(0)} % - speed: ${progressObj.bytesPerSecond}`;
     setStatusToWindow(log_message);
 });
-autoUpdater.on('update-downloaded', (ev, info) => {
-    const dialogOpts = {
+autoUpdater.on('update-downloaded', (ev) => {
+    const notify = new Notification({
+        title: 'Awery ERP',
+        closeButtonText: 'Close',
+        actions: [{text: 'Restart', type: 'button'}],
+        body: `Desktop application version updated to: ${ev.version}`
+    });
+    notify.on('action', (e) => {
+        autoUpdater.quitAndInstall();
+    });
+    notify.show();
+    setStatusToWindow(ev);
+
+    /*const dialogOpts = {
         type: 'info',
         buttons: ['Restart', 'Later'],
         defaultId: 0,
@@ -36,7 +48,7 @@ autoUpdater.on('update-downloaded', (ev, info) => {
     };
     dialog.showMessageBox(dialogOpts, (response) => {
         if (response === 0) autoUpdater.quitAndInstall();
-    })
+    });*/
 });
 
 app.on('window-all-closed', () => {
@@ -55,7 +67,7 @@ let browserWindow = electron.BrowserWindow;
 let mainWindow;
 
 let trayIcon = nativeImage.createFromPath(path.join(__dirname, '/res/images/osx/ic_tray.png'));
-let updateWindowOpened = false;
+let updateWindowOpened, updNgOpened = false;
 
 let pluginName;
 switch (process.platform) {
@@ -76,14 +88,10 @@ switch (process.platform) {
 app.commandLine.appendSwitch('ppapi-flash-version', '32.0.0.156');
 
 app.on('ready', function () {
-    // for private repo
-    autoUpdater.setFeedURL({
-        private: true,
-        provider: 'github',
-        owner: 'notan',
-        repo: 'awerydesktop',
-        token: 'a89ec6a54d676490c20abd1b078952b0cbdf0f03'
-    });
+    // for win3 notifications
+    if (process.platform === 'win32') {
+        app.setAppUserModelId("com.awery.erp.desctop");
+    }
     createWindow();
     appMenu.setupMenu();
 });
@@ -190,7 +198,7 @@ function createWindow() {
 
     setTimeout(() => {
         mainWindow.webContents.send('auto-login', true);
-    }, 1000) ;
+    }, 1000);
 
 //======================================================================================================================
 // TRAY
@@ -220,8 +228,6 @@ function createWindow() {
     mainWindow.on('close', function (event) {
         mainWindow = null
     });
-
-
     mainWindow.on('minimize', function (event) {
         if (process.platform == 'darwin') {
             event.preventDefault();
@@ -242,15 +248,14 @@ function createWindow() {
         }
     });
 
-
     //  ipcMain
     let ERP_LINK = '';
-    let ERP_AUTH_TOKEN = '';
     let ERP_NAME = '';
+    let ERP_LOCAL = true;
+    let ERP_AUTH_TOKEN = '';
     let FLEX_REPORT_URL = '';
     let FLEX_REPORT_SERIAL = '';
     exports.erpToken = ERP_AUTH_TOKEN;
-
 
     ipcMain.on('open-file', function (event, path, id) {
         fs.stat(path, function (err, stat) {
@@ -270,7 +275,6 @@ function createWindow() {
         });
     });
 
-
     ipcMain.on('flex-report-container', function (event, url, serial) {
         FLEX_REPORT_URL = url;
         FLEX_REPORT_SERIAL = serial;
@@ -278,6 +282,11 @@ function createWindow() {
 
     ipcMain.on('load-local-cdn-version', function (event, args) {
         const acmVersionDescriptor = path.join(userDataPath, '/acm', '/version.as');
+        const acmNgVersion = path.join(userDataPath, '/acm/apps/version.txt');
+
+        if (!fs.existsSync(path.join(userDataPath, '/acm'))) {
+            fs.mkdirSync(path.join(userDataPath, '/acm'));
+        }
 
         fs.readFile(acmVersionDescriptor, 'utf8', function (err, data) {
             let version = 0;
@@ -290,7 +299,17 @@ function createWindow() {
             version = version.length > 1 ? parseFloat(version[1]) : 0;
             event.sender.send('set-version-as', version);
         });
+        fs.readFile(acmNgVersion, 'utf8', function (err, data) {
+            let version = 0;
+            if (err) {
+                event.sender.send('set-ng-version-as', version);
+                return console.log(err);
+            }
 
+            version = data.match(/\"([0-9\.]*)\"/);
+            version = version.length > 1 ? version[1] : 0;
+            event.sender.send('set-ng-version-as', version);
+        });
     });
 
     ipcMain.on('on-flex-report-loader-ready', function (event, args) {
@@ -300,12 +319,18 @@ function createWindow() {
     ipcMain.on('update-local-version', function (event) {
         console.info('Need to update!');
         startAcmUpdate();
-    })
+    });
+
+    ipcMain.on('update-ng-local-version', function (event, args) {
+        console.info('Need ng to update!');
+        startNgUpdate(args);
+    });
 
     ipcMain.on('erp-system-chosen', function (event, erpLink, authToken, erpName, isDesktopAcmMode) {
         console.log('IPC_EVENT: erp-system-chosen \n\tAuthorisation to ERP:', erpLink, '\n\twith token:', authToken, '\n\tisDesktopAcmMode: ', isDesktopAcmMode);
         ERP_LINK = erpLink;
         ERP_NAME = erpName;
+        ERP_LOCAL = isDesktopAcmMode;
         module.exports.erpToken = authToken;
 
         let isDesktopMode = isDesktopAcmMode ? true : "";
@@ -328,33 +353,40 @@ function createWindow() {
         }, 2000);
     });
 
-
     ipcMain.on('erp-page-ready', (event, args) => {
         console.log('ipcMain EVENT erp-page-ready');
-        event.sender.send('init-erp-system', ERP_LINK, ERP_AUTH_TOKEN, ERP_NAME);
+        event.sender.send('init-erp-system', ERP_LINK, ERP_AUTH_TOKEN, ERP_NAME, ERP_LOCAL);
 
         if (process.platform === 'darwin') {
             mainWindow.webContents.send('toggle-min-max-screen', isFullScreen);
         }
     });
 
-    ipcMain.on('erp-toggle-ext-menu', (event, arg) => {
-        // openExtMenu();
-    });
-
     setInterval(() => {
         autoUpdater.checkForUpdates();
-    }, 10 * 60 * 1000/*10 minutes*/);
+    }, 10 * 60 * 1000 /*10 minutes*/);
 
     ipcMain.on('update-closed', (event) => {
         updateWindowOpened = false;
         mainWindow.webContents.send('update-complete');
     });
+
+    ipcMain.on('notify', function (event, args) {
+        const acmVersionDescriptor = path.join(userDataPath, '/acm', '/version.as');
+        fs.readFile(acmVersionDescriptor, 'utf8', function (err, data) {
+            let version = 0;
+            version = data.match(/\"([0-9\.]*)\"/);
+            version = version.length > 1 ? parseFloat(version[1]) : 0;
+            notify({
+                title: 'Awery ERP',
+                body: `Flex interface version updated to: ${version}`,
+            });
+        });
+    });
 }
 
 function startAcmUpdate() {
-    if (updateWindowOpened)
-        return false;
+    if (updateWindowOpened) return false;
 
     updateWindowOpened = true;
     let updWin = new browserWindow({
@@ -374,9 +406,48 @@ function startAcmUpdate() {
     updWin.loadURL(`file://${__dirname}/src/html/acm_update.html`);
 }
 
-//======================================================================================================================
-//  E X P O R T S
-//======================================================================================================================
+function startNgUpdate(version = 0) {
+    if (updNgOpened) return false;
+
+    updNgOpened = true;
+    let acmUpdate = require('./src/js/AcmUpdater');
+    try {
+        acmUpdate.update(
+            () => {
+            },
+            () => {
+                notify({
+                    title: 'Awery ERP',
+                    body: `User interface version updated to: ${version}`,
+                });
+                updNgOpened = false;
+                fs.writeFileSync(`${userDataPath}/acm/apps/version.txt`, `"${version.trim()}"`);
+            },
+            () => {
+            },
+            {
+                acmUpdPatchURL: 'http://cdn.awery.com/appsalpha/static.zip',
+                acmUpdPatchArchiveName: 'static.zip',
+                acmFolderJoinPatch: '/apps/',
+                zipRootDir: 'home/angular_deploy/apps_src/static/'
+            }
+        );
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+function notify(obj = {}) {
+    obj = {
+        ...obj,
+        ...{icon: nativeImage.createFromPath(path.join(__dirname, '/res/images/win32/ic_launcher.ico'))}
+    };
+
+    const notify = new Notification(obj);
+    notify.show();
+}
+
+/********************************** EXPORTS **********************************/
 exports.printCurentPage = function switchErpSystem() {
     mainWindow.webContents.send('request-to-print-current-page', '');
 };
@@ -418,12 +489,4 @@ exports.toggleFullScreen = function toggleFullScreen() {
         mainWindow.webContents.send('toggle-min-max-screen', isFullScreen);
     }
 };
-
-// "darwin" packaging
-// electron-packager . "Awery ERP" --platform=darwin --arch=x64 --overwrite --app-version='0.7.4' --build-version='54' --osx-sign.identity="Developer ID Application: Awery FZE (WL9ZP5DB23)" --icon="./res/images/osx/ic_launcher.icns" --app-bundle-id="com.awery.awerydesktop"
-// electron-installer-dmg "./Awery ERP-darwin-x64/Awery ERP.app" "Awery ERP installer" --icon="./res/images/osx/ic_installer.icns" --background="./res/images/osx/install.png" --overwrite  --icon-size=120 <-WORK
-
-// electron-osx-sign "./Awery ERP-darwin-x64/Awery ERP.app"
-// build --win --ia32
-// build --win --x64 <- THIS
-// electron-windows-store --input-directory "./dist/win-unpacked" --output-directory "./dist/store" --flatten true --package-version 0.4.1 --package-name com.awery.erp.desktop
+/********************************** EXPORTS **********************************/

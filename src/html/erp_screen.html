@@ -6,11 +6,6 @@
     <link href="../../awr-modules/chrome-tabs/css/chrome-tabs.css" rel="stylesheet">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="../css/app.css">
-
-    <script type="text/javascript">
-        const {ipcRenderer, shell} = require('electron');
-        let erpBaseUrl;
-    </script>
 </head>
 
 <body scroll="no">
@@ -37,10 +32,13 @@
 
 <script type="text/javascript" src="../js/chTabs.js"></script>
 <script type="text/javascript">
+    const {ipcRenderer, shell} = require('electron');
+
     if (navigator.platform.toUpperCase().indexOf('MAC') > -1)
         document.body.classList.add('mac');
 
     let webview;
+    let erpBaseUrl;
     let show = false;
     let defaultIcon = 'fa fa-spinner fa-spin fa-fw';
 
@@ -158,10 +156,12 @@
         shell.openItem(path);
     });
 
-    ipcRenderer.on('init-erp-system', function (event, url, token, erp_name) {
+    ipcRenderer.on('init-erp-system', function (event, url, token, erp_name, erp_local) {
         erpBaseUrl = url;
-        console.log('EVENT init-erp-system:', erpBaseUrl);
+        // running ng scripts from localhost
+        if (erp_local) erpBaseUrl += '/apps/alpha/';
 
+        console.log('EVENT init-erp-system:', erpBaseUrl);
         localStorage.clear();
 
         setTimeout(function () {
@@ -308,7 +308,6 @@
 
     let db = openDatabase("AWERY", "0.1", "A list of systems.", 1000, function (e) {
         if (db) {
-
             db.transaction(function (tx) {
                 tx.executeSql("SELECT * FROM systems ORDER BY name ASC", [],
                     function (tx, result) {

@@ -48,10 +48,12 @@
             },
             function onSuccess() {
                 setTimeout(function () {
+                    ipcRenderer.send('notify');
                     ipcRenderer.send('update-closed');
                     window.close();
                 }, 500);
-            }, function onError(message) {
+            },
+            function onError(message) {
                 console.log(message);
                 document.getElementById('box').classList.add('error');
                 document.getElementById('progressText').innerHTML = 'Something went wrong...';

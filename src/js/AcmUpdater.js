@@ -1,15 +1,18 @@
 const electron = require('electron');
 const path = require('path');
 const fs = require('fs');
+const fx = require('fs-extra');
 const http = require('http');
 const AdmZip = require('adm-zip');
 
 const userDataPath = (electron.app || electron.remote.app).getPath('userData');
-const acmUpdPatchURL = "http://cdn.awery.com/uibeta/desktop_patch.zip";
-const acmUpdPatchArchiveName = "desktop_patch.zip";
 const tempFolderPatch = path.join(userDataPath, '/temp/');
-const acmFolderPatch = path.join(userDataPath, '/acm/');
-const completeTempUpdFilePatch = tempFolderPatch + acmUpdPatchArchiveName;
+
+let acmUpdPatchURL = "http://cdn.awery.com/uibeta/desktop_patch.zip";
+let acmUpdPatchArchiveName = "desktop_patch.zip";
+let acmFolderPatch = path.join(userDataPath, '/acm/');
+let completeTempUpdFilePatch;
+let zipRootDir;
 
 let mCallOnProgress, mCallOnSuccess, mCallOnError;
 
@@ -21,7 +24,21 @@ let mCallOnProgress, mCallOnSuccess, mCallOnError;
  *   4. Remove UPD file
  *   5. finish
  */
-exports.update = function update(onProgress, onSuccess, onError) {
+exports.update = function update(onProgress, onSuccess, onError, options = {}) {
+    if (options.acmUpdPatchURL) {
+        acmUpdPatchURL = options.acmUpdPatchURL;
+    }
+    if (options.acmUpdPatchArchiveName) {
+        acmUpdPatchArchiveName = options.acmUpdPatchArchiveName;
+    }
+    if (options.acmFolderJoinPatch) {
+        acmFolderPatch = path.join(acmFolderPatch, options.acmFolderJoinPatch);
+    }
+    if (options.zipRootDir) {
+        zipRootDir = options.zipRootDir;
+    }
+    completeTempUpdFilePatch = tempFolderPatch + acmUpdPatchArchiveName;
+
     mCallOnProgress = onProgress;
     mCallOnSuccess = onSuccess;
     mCallOnError = onError;
@@ -88,6 +105,22 @@ function unzipAndFlushPatch() {
     let zip = new AdmZip(completeTempUpdFilePatch);
     // extracts everything
     zip.extractAllTo(acmFolderPatch, true);
+
+    if (zipRootDir && zipRootDir.length > 0) {
+        fx.copy(acmFolderPatch + zipRootDir, acmFolderPatch)
+            .then(() => {
+                console.log('move success!');
+
+                // const ngIndex = fs.readFileSync(`${__dirname}/../html/ng_index.html`);
+                // fs.writeFileSync(`${acmFolderPatch}index.html`, ngIndex, {encoding: 'utf8', flag: 'w'});
+                fs.unlinkSync(`${acmFolderPatch}index.html`);
+
+                fx.remove(`${acmFolderPatch}${zipRootDir.split('/')[0]}/`)
+                    .then(() => console.log('remove success!'))
+                    .catch(err => console.error(err));
+            })
+            .catch(err => console.error(err));
+    }
 
     mCallOnProgress(3);
     removeUpdatePatchFile();
