@@ -39,11 +39,15 @@
                         <td style="width: 50%; padding-right: 8px; padding-left: 8px;" align="left" id="electron_version"></td>
                     </tr>
                     <tr>
-                        <td style="width: 50%; padding-right: 8px; padding-left: 8px;" align="right">Flash to start with</td>
+                        <td style="width: 50%; padding-right: 8px; padding-left: 8px;" align="right">Flash Player Version</td>
                         <td style="width: 50%; padding-right: 8px; padding-left: 8px;" align="left" id="flash_version"></td>
                     </tr>
                     <tr>
                         <td style="width: 50%; padding-right: 8px; padding-left: 8px;" align="right">ERP Version</td>
+                        <td style="width: 50%; padding-right: 8px; padding-left: 8px;" align="left" id="acm_ng_local_files"></td>
+                    </tr>
+                    <tr>
+                        <td style="width: 50%; padding-right: 8px; padding-left: 8px;" align="right">ERP Version Flex</td>
                         <td style="width: 50%; padding-right: 8px; padding-left: 8px;" align="left" id="acm_local_files"></td>
                     </tr>
                 </table>
@@ -69,6 +73,10 @@
     ipcRenderer.on('set-version-as', function (event, args) {
         document.getElementById('acm_local_files').innerHTML = parseFloat(args);
     });
+    ipcRenderer.on('set-ng-version-as', function (event, args) {
+        document.getElementById('acm_ng_local_files').innerHTML = args;
+    });
+
     ipcRenderer.send('load-local-cdn-version');
 
 

@@ -34,10 +34,11 @@ autoUpdater.on('update-downloaded', (ev) => {
         body: `Desktop application version updated to: ${ev.version}`
     });
     notify.on('action', (e) => {
+        setStatusToWindow(e);
         autoUpdater.quitAndInstall();
     });
     notify.show();
-    setStatusToWindow(ev);
+    // setStatusToWindow(ev);
 
     /*const dialogOpts = {
         type: 'info',
@@ -460,7 +461,7 @@ exports.showDownloads = function showDownloads() {
 
 exports.showAppVersionInfoDialog = function showAppVersionInfoDialog() {
     let updWin = new browserWindow({
-        width: 420, height: 300,
+        width: 420, height: 320,
         fullscreenable: false,
         fullscreen: false,
         resizable: true,
