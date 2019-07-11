@@ -19,4 +19,5 @@ let httpsOptions = {
 };
 https.createServer(httpsOptions, app).listen(13789, () => {
     console.log('Express HTTPS server listening on port ' + app.get('port'));
+    console.log('https://localhost:' + app.get('port'));
 });

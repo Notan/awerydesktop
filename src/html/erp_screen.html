@@ -66,7 +66,6 @@
                 const qs = require("querystring");
                 const param = qs.stringify({file: `${xhr.responseURL}&filename=${encodeURI(filename)}`});
                 getActiveTab().webview.src = `file://${__dirname}/../../awr-modules/pdfjs/web/viewer.html?${param}`;
-
                 console.log(`file://${__dirname}/../../awr-modules/pdfjs/web/viewer.html?${param}`);
             }
         };
@@ -159,7 +158,10 @@
     ipcRenderer.on('init-erp-system', function (event, url, token, erp_name, erp_local) {
         erpBaseUrl = url;
         // running ng scripts from localhost
-        if (erp_local) erpBaseUrl += '/apps/alpha/';
+        if (erp_local) {
+            erpBaseUrl += '/apps/alpha/';
+            runLocalServer();
+        }
 
         console.log('EVENT init-erp-system:', erpBaseUrl);
         localStorage.clear();
@@ -231,8 +233,6 @@
                 openDownloadsPage();
             }
         });
-
-        setFlex();
     }
 
     function onOpenUrlInExternalBrowser(link) {
@@ -252,7 +252,6 @@
                     let tab = openChromeTab(`about:blank`, {title: reportName, icon: defaultIcon});
                     if (res.res.report_type === 'pdf') {
                         printToPdfViewer({url: url, reportName: reportName});
-                        // tab.webview.src = url;
                     } else {
                         tab.webview.src = url;
                     }
@@ -265,7 +264,7 @@
         }
     };
 
-    function setFlex() {
+    function runLocalServer() {
         require('../js/server');
     }
 

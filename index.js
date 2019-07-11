@@ -1,13 +1,17 @@
 const electron = require('electron');
-const {app, Tray, Menu, dialog, ipcMain, shell, Notification} = require('electron');
-const path = require('path');
-const appMenu = require('./app_menu.js');
-const userDataPath = (electron.app || electron.remote.app).getPath('userData');
-let {autoUpdater} = require("electron-updater");
+const {app, Tray, Menu, ipcMain, shell, Notification} = require('electron');
+const {autoUpdater} = require("electron-updater");
+
 let fs = require('fs');
+const userDataPath = (electron.app || electron.remote.app).getPath('userData');
+const path = require('path');
+
+const appMenu = require('./app_menu.js');
 
 app.commandLine.appendSwitch('--allow-file-access-from-files');
 app.commandLine.appendSwitch('--enable-print-preview');
+app.commandLine.appendSwitch('ppapi-flash-version', '32.0.0.156');
+// app.commandLine.appendSwitch('js-flags', '--max-old-space-size=8192');
 
 /********** autoUpdater **********/
 autoUpdater.on('checking-for-update', () => {
@@ -86,7 +90,6 @@ switch (process.platform) {
         pluginName = 'libpepflashplayer.so';
         break;
 }
-app.commandLine.appendSwitch('ppapi-flash-version', '32.0.0.156');
 
 app.on('ready', function () {
     // for win3 notifications
@@ -154,6 +157,11 @@ function createWindow() {
 
     mainWindow.loadURL(`file://${__dirname}/index.html`);
 
+    // kostil: for running win local server
+    if (process.platform == 'win32') {
+        setTimeout(() => mainWindow.reload(), 1000);
+    }
+
     const page = mainWindow.webContents;
 
     page.on('new-window', (event, url, frameName, disposition, options) => {
@@ -196,6 +204,11 @@ function createWindow() {
             }
         })
     });
+
+    // mainWindow.webContents.on('console-message', (event, level, message, line, sourceId) => {
+    //     console.log(message + " " + sourceId + " (" + line + ")");
+    // });
+    // mainWindow.webContents.toggleDevTools();
 
     setTimeout(() => {
         mainWindow.webContents.send('auto-login', true);

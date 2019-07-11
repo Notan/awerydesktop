@@ -1,6 +1,6 @@
 {
   "name": "Awery_ERP",
-  "version": "0.8.6",
+  "version": "0.8.8",
   "description": "\"Awery ERP\" desktop application",
   "main": "index.js",
   "author": "AweryAero",
@@ -73,14 +73,14 @@
     "erp-system"
   ],
   "devDependencies": {
-    "electron": "^5.0.5",
-    "electron-builder": "^20.44.4"
+    "electron": "^4.2.6",
+    "electron-builder": "^21.0.15"
   },
   "dependencies": {
     "adm-zip": "^0.4.13",
     "compare-versions": "^3.5.0",
     "draggabilly": "^2.2.0",
-    "electron-updater": "^4.0.6",
+    "electron-updater": "^4.1.2",
     "express": "^4.16.3",
     "flash-player-loader": "^1.2.0",
     "fs-extra": "^8.1.0",
