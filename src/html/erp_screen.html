@@ -228,7 +228,7 @@
             console.log(args);
 
             addDownload(args.filename, args.path, args.size, args.date);
-            if (args.filename && (args.filename.indexOf('xls') > 1 || args.filename.indexOf('xlsx') > 1)) {
+            if (args.filename) {
                 removeActiveTab();
                 openDownloadsPage();
             }
