@@ -1,5 +1,5 @@
 const electron = require('electron');
-const {app, Tray, Menu, ipcMain, shell, Notification} = require('electron');
+const {app, Tray, Menu, ipcMain, shell, Notification, dialog} = require('electron');
 const {autoUpdater} = require("electron-updater");
 
 let fs = require('fs');
@@ -31,29 +31,30 @@ autoUpdater.on('download-progress', (progressObj) => {
     setStatusToWindow(log_message);
 });
 autoUpdater.on('update-downloaded', (ev) => {
-    const notify = new Notification({
-        title: 'Awery ERP',
-        closeButtonText: 'Close',
-        actions: [{text: 'Restart', type: 'button'}],
-        body: `Desktop application version updated to: ${ev.version}`
-    });
-    notify.on('action', (e) => {
-        setStatusToWindow(e);
-        autoUpdater.quitAndInstall();
-    });
-    notify.show();
-    // setStatusToWindow(ev);
-
-    /*const dialogOpts = {
-        type: 'info',
-        buttons: ['Restart', 'Later'],
-        defaultId: 0,
-        icon: nativeImage.createFromPath(path.join(__dirname, '/res/images/win32/ic_launcher.ico')),
-        message: 'A new version has been downloaded. Restart the application to apply the updates.'
-    };
-    dialog.showMessageBox(dialogOpts, (response) => {
-        if (response === 0) autoUpdater.quitAndInstall();
-    });*/
+    if (process.platform === 'win32') {
+        const dialogOpts = {
+            type: 'info',
+            buttons: ['Restart', 'Later'],
+            defaultId: 0,
+            icon: nativeImage.createFromPath(path.join(__dirname, '/res/images/win32/ic_launcher.ico')),
+            message: 'A new version has been downloaded. Restart the application to apply the updates.'
+        };
+        dialog.showMessageBox(dialogOpts, (response) => {
+            if (response === 0) autoUpdater.quitAndInstall();
+        });
+    } else {
+        const notify = new Notification({
+            title: 'Awery ERP',
+            closeButtonText: 'Close',
+            actions: [{text: 'Restart', type: 'button'}],
+            body: `Desktop application version updated to: ${ev.version}`
+        });
+        notify.on('action', (e) => {
+            setStatusToWindow(e);
+            autoUpdater.quitAndInstall();
+        });
+        notify.show();
+    }
 });
 
 app.on('window-all-closed', () => {
