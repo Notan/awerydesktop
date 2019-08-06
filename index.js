@@ -179,7 +179,7 @@ function createWindow() {
 
         const fName = dialog.showSaveDialog({
             defaultPath: fileName,
-            filters: [getFileFilters(extension)]
+            filters: [{name: extension, extensions: [extension]}]
         });
 
         item.on('updated', (event, state) => {
@@ -478,31 +478,6 @@ function notify(obj = {}) {
 
     const notify = new Notification(obj);
     notify.show();
-}
-
-function getFileFilters(extension) {
-    let res = {name: '', extensions: [extension]};
-    switch (extension) {
-        case 'pdf':
-            res.name = 'Pdf';
-            break;
-        case 'xls':
-        case 'xlsx':
-            res.name = 'Excel';
-            break;
-        case 'doc':
-        case 'docx':
-            res.name = 'Doc';
-            break;
-        case 'html':
-            res.name = 'Html';
-            break;
-        case 'csv':
-            res.name = 'Csv';
-            break;
-    }
-
-    return res;
 }
 
 /********************************** EXPORTS **********************************/
