@@ -173,6 +173,15 @@ function createWindow() {
         // Set the save path, making Electron not to prompt a save dialog.
         console.log('EVENT "will-download"', item.getSavePath());
 
+        const fileName = item.getFilename();
+        // const type = item.getMimeType();
+        const extension = fileName.substr(fileName.indexOf('.') + 1, fileName.length);
+
+        const fName = dialog.showSaveDialog({
+            defaultPath: fileName,
+            filters: [getFileFilters(extension)]
+        });
+
         item.on('updated', (event, state) => {
             if (state === 'interrupted') {
                 console.log('Download is interrupted but can be resumed')
@@ -184,26 +193,24 @@ function createWindow() {
                 }
             }
         });
-        item.once('done', (event, state) => {
-            if (state === 'completed') {
-                const currentDatetime = new Date();
-                const formattedDate = currentDatetime.toISOString()
-                    .replace(/T/, ' ')     // replace T with a space
-                    .replace(/\..+/, '');
 
-                let fileName = item.getSavePath().split('/');
-                fileName = fileName[fileName.length - 1];
+        if (typeof fName == "undefined") {
+            item.cancel();
+            console.log(`Download failed: ${item.getState()}`)
+        } else {
+            item.setSavePath(fName);
+            const currentDatetime = new Date();
+            const formattedDate = currentDatetime.toISOString()
+                .replace(/T/, ' ')     // replace T with a space
+                .replace(/\..+/, '');
 
-                mainWindow.webContents.send('addNewDownload', {
-                    filename: fileName,
-                    path: item.getSavePath(),
-                    size: Math.round(item.getTotalBytes() / 1024),
-                    date: formattedDate
-                });
-            } else {
-                console.log(`Download failed: ${state}`)
-            }
-        })
+            mainWindow.webContents.send('addNewDownload', {
+                filename: fileName,
+                path: item.getSavePath(),
+                size: Math.round(item.getTotalBytes() / 1024),
+                date: formattedDate
+            });
+        }
     });
 
     // mainWindow.webContents.on('console-message', (event, level, message, line, sourceId) => {
@@ -398,6 +405,17 @@ function createWindow() {
             });
         });
     });
+
+    ipcMain.on('online-status-changed', (event, status) => {
+        console.log('online-status-changed', status);
+
+        if (status === 'offline') {
+            notify({
+                title: 'No Internet connection!',
+                body: 'Please turn on internet connection to continue',
+            });
+        }
+    });
 }
 
 function startAcmUpdate() {
@@ -460,6 +478,31 @@ function notify(obj = {}) {
 
     const notify = new Notification(obj);
     notify.show();
+}
+
+function getFileFilters(extension) {
+    let res = {name: '', extensions: [extension]};
+    switch (extension) {
+        case 'pdf':
+            res.name = 'Pdf';
+            break;
+        case 'xls':
+        case 'xlsx':
+            res.name = 'Excel';
+            break;
+        case 'doc':
+        case 'docx':
+            res.name = 'Doc';
+            break;
+        case 'html':
+            res.name = 'Html';
+            break;
+        case 'csv':
+            res.name = 'Csv';
+            break;
+    }
+
+    return res;
 }
 
 /********************************** EXPORTS **********************************/
