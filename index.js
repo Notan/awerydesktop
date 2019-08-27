@@ -269,6 +269,18 @@ function createWindow() {
             mainWindow.webContents.send('toggle-min-max-screen', true);
         }
     });
+    mainWindow.on('close', function (e) {
+        const dialogOpts = {
+            type: 'info',
+            buttons: ['Yes', 'No'],
+            defaultId: 0,
+            icon: nativeImage.createFromPath(path.join(__dirname, '/res/images/win32/ic_launcher.ico')),
+            message: 'Are you sure ​you want to close Awery ERP application ?'
+        };
+        dialog.showMessageBox(dialogOpts, (response) => {
+            if (response === 1) e.preventDefault();
+        });
+    });
 
     //  ipcMain
     let ERP_LINK = '';
