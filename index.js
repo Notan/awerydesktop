@@ -12,7 +12,6 @@ app.commandLine.appendSwitch('--allow-file-access-from-files');
 app.commandLine.appendSwitch('--enable-print-preview');
 app.commandLine.appendSwitch('ppapi-flash-version', '32.0.0.156');
 // app.commandLine.appendSwitch('js-flags', '--max-old-space-size=8192');
-app.showExitPrompt = true;
 
 /********** autoUpdater **********/
 autoUpdater.on('checking-for-update', () => {
@@ -245,22 +244,17 @@ function createWindow() {
     }]);
     tray.setContextMenu(contextMenu);
     mainWindow.on('close', function (e) {
-        if (app.showExitPrompt) {
-            e.preventDefault();
-            const dialogOpts = {
-                type: 'info',
-                buttons: ['Yes', 'No'],
-                defaultId: 0,
-                icon: nativeImage.createFromPath(path.join(__dirname, '/res/images/win32/ic_launcher.ico')),
-                message: 'Are you sure ​you want to close Awery ERP application?'
-            };
-            dialog.showMessageBox(dialogOpts, (response) => {
-                if (response === 0) {
-                    app.showExitPrompt = false;
-                    app.exit(0);
-                }
-            });
-        }
+        e.preventDefault();
+        const dialogOpts = {
+            type: 'info',
+            buttons: ['Yes', 'No'],
+            defaultId: 0,
+            icon: nativeImage.createFromPath(path.join(__dirname, '/res/images/win32/ic_launcher.ico')),
+            message: 'Are you sure ​you want to close Awery ERP application?'
+        };
+        dialog.showMessageBox(dialogOpts, (response) => {
+            if (response === 0) app.exit(0);
+        });
     });
     mainWindow.on('minimize', function (event) {
         if (process.platform == 'darwin') {
