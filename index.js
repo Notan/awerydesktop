@@ -7,6 +7,7 @@ const userDataPath = (electron.app || electron.remote.app).getPath('userData');
 const path = require('path');
 
 const appMenu = require('./app_menu.js');
+let isUpdating = false;
 
 app.commandLine.appendSwitch('--allow-file-access-from-files');
 app.commandLine.appendSwitch('--enable-print-preview');
@@ -21,9 +22,11 @@ autoUpdater.on('update-available', (info) => {
     setStatusToWindow('Update available.');
 });
 autoUpdater.on('update-not-available', (info) => {
+    isUpdating = false;
     setStatusToWindow('Update not available.');
 });
 autoUpdater.on('error', (err) => {
+    isUpdating = false;
     setStatusToWindow('Error in auto-updater. ' + err);
 });
 autoUpdater.on('download-progress', (progressObj) => {
@@ -31,6 +34,7 @@ autoUpdater.on('download-progress', (progressObj) => {
     setStatusToWindow(log_message);
 });
 autoUpdater.on('update-downloaded', (ev) => {
+    isUpdating = false;
     if (process.platform === 'win32') {
         const dialogOpts = {
             type: 'info',
@@ -112,7 +116,10 @@ app.on('activate', function () {
     if (mainWindow === null) {
         createWindow();
     }
-    autoUpdater.checkForUpdates();
+    // if (!isUpdating) {
+    //     isUpdating = true;
+    //     autoUpdater.checkForUpdates();
+    // }
 });
 
 app.on('window-all-closed', function () {
@@ -392,7 +399,10 @@ function createWindow() {
     });
 
     setInterval(() => {
-        autoUpdater.checkForUpdates();
+        if (!isUpdating) {
+            isUpdating = true;
+            autoUpdater.checkForUpdates();
+        }
     }, 10 * 60 * 1000 /*10 minutes*/);
 
     ipcMain.on('update-closed', (event) => {
@@ -513,7 +523,10 @@ exports.showAppVersionInfoDialog = function showAppVersionInfoDialog() {
 };
 
 exports.checkForUpdates = function checkForUpdates() {
-    autoUpdater.checkForUpdates();
+    if (!isUpdating) {
+        isUpdating = true;
+        autoUpdater.checkForUpdates();
+    }
 };
 
 exports.clearCache = function clearCache() {
