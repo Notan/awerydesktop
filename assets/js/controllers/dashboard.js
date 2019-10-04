@@ -76,7 +76,7 @@ app.controller('DashboardController', ['$scope', '$http', '$rootScope', '$state'
     $scope.getNgCDNVersion = function () {
         $http({
             method: 'GET',
-            url: 'https://cdn.awery.com/appsalpha/version.txt',
+            url: 'https://cdn.awery.com/appsalpha/version.txt?rand=' + new Date().getTime(),
         }).success(function (data, status, headers) {
             data = data.match(/\"([0-9\.]*)\"/);
             data = data && data.length > 1 ? data[1] : 0;
