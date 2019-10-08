@@ -34,7 +34,7 @@ autoUpdater.on('download-progress', (progressObj) => {
     setStatusToWindow(log_message);
 });
 autoUpdater.on('update-downloaded', (ev) => {
-    isUpdating = false;
+    isUpdating = true;
     if (process.platform === 'win32') {
         const dialogOpts = {
             type: 'info',
