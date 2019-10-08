@@ -19,6 +19,12 @@ const template = [
             {role: 'toggledevtools'},
             {type: 'separator'},
             {
+                label: 'Clear Local Interfaces Data', click: function () {
+                    appIndex.clearLocalUiData();
+                }
+            },
+            {type: 'separator'},
+            {
                 role: 'quit', label: "Quit Awery ERP", click: function () {
                     app.isQuiting = true;
                     app.quit();

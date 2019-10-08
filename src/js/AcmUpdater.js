@@ -10,7 +10,7 @@ const tempFolderPatch = path.join(userDataPath, '/temp/');
 
 let acmUpdPatchURL = "http://cdn.awery.com/uibeta/desktop_patch.zip";
 let acmUpdPatchArchiveName = "desktop_patch.zip";
-let acmFolderPatch = path.join(userDataPath, '/acm/');
+let acmFolderPatch;
 let completeTempUpdFilePatch;
 let zipRootDir;
 
@@ -25,6 +25,7 @@ let mCallOnProgress, mCallOnSuccess, mCallOnError;
  *   5. finish
  */
 exports.update = function update(onProgress, onSuccess, onError, options = {}) {
+    acmFolderPatch = path.join(userDataPath, '/acm/');
     if (options.acmUpdPatchURL) {
         acmUpdPatchURL = options.acmUpdPatchURL;
     }
@@ -114,6 +115,8 @@ function unzipAndFlushPatch() {
                 // const ngIndex = fs.readFileSync(`${__dirname}/../html/ng_index.html`);
                 // fs.writeFileSync(`${acmFolderPatch}index.html`, ngIndex, {encoding: 'utf8', flag: 'w'});
                 fs.unlinkSync(`${acmFolderPatch}index.html`);
+                fs.unlinkSync(`${acmFolderPatch}index.php`);
+                fs.unlinkSync(`${acmFolderPatch}.htaccess`);
 
                 fx.remove(`${acmFolderPatch}${zipRootDir.split('/')[0]}/`)
                     .then(() => console.log('remove success!'))

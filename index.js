@@ -542,4 +542,15 @@ exports.toggleFullScreen = function toggleFullScreen() {
         mainWindow.webContents.send('toggle-min-max-screen', isFullScreen);
     }
 };
+
+exports.clearLocalUiData = function () {
+    const fx = require('fs-extra');
+    const ngDir = userDataPath + '/acm/apps';
+    fx.remove(ngDir)
+        .then(() => {
+            console.log('remove success!');
+            mainWindow.webContents.send('set-ng-version-as', 0);
+        })
+        .catch(err => console.error(err));
+};
 /********************************** EXPORTS **********************************/
