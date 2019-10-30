@@ -8,6 +8,7 @@
   "scripts": {
     "start": "electron .",
     "release": "npm run update:version && npm run pack:mac && npm run pack:win && npm run gh-publish",
+    "release-win": "npm run pack:win && electron-builder --x64 --win -p always",
     "pack:mac": "electron-builder -m",
     "pack:win": "electron-builder -w",
     "gh-publish": "electron-builder --x64 --mac --win -p always",
@@ -74,7 +75,7 @@
   ],
   "devDependencies": {
     "electron": "^4.2.6",
-    "electron-builder": "^21.0.15"
+    "electron-builder": "^21.2.0"
   },
   "dependencies": {
     "adm-zip": "^0.4.13",
@@ -84,7 +85,6 @@
     "express": "^4.16.3",
     "flash-player-loader": "^1.2.0",
     "fs-extra": "^8.1.0",
-    "http": "0.0.0",
     "jquery": "^3.4.1"
   }
 }
