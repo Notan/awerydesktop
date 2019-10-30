@@ -8,6 +8,7 @@
   "scripts": {
     "start": "electron .",
     "release": "npm run update:version && npm run pack:mac && npm run pack:win && npm run gh-publish",
+    "release-mac": "npm run update:version npm run pack:mac && electron-builder --x64 --mac -p always",
     "release-win": "npm run pack:win && electron-builder --x64 --win -p always",
     "pack:mac": "electron-builder -m",
     "pack:win": "electron-builder -w",
