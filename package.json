@@ -25,7 +25,8 @@
       "**/*",
       "!dist${/*}",
       "!not-used${/*}",
-      "!src/js/update-version.js"
+      "!src/js/update-version.js",
+      "!docker-compose.yml"
     ],
     "mac": {
       "icon": "./res/images/osx/ic_launcher.icns",
@@ -64,7 +65,7 @@
         "provider": "github",
         "owner": "notan",
         "repo": "awerydesktop",
-        "token": "GH_TOKEN"
+        "token": "3f1975e7e5931190551d885e40ae63fdff512183"
       }
     ]
   },
