@@ -235,13 +235,8 @@
 
             addDownload(args.filename, args.path, args.size, args.date);
             if (args.filename) {
-                let promise = isImage(args.path);
-                promise.then(function (res) {
-                    openDownloadsPage();
-                }).catch(function (err) {
-                    removeActiveTab();
-                    openDownloadsPage();
-                });
+                removeActiveTab();
+                openDownloadsPage();
             }
         });
     }

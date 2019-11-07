@@ -95,8 +95,10 @@ function getActiveTab() {
 
 function removeActiveTab() {
     const indx = chromeTabs.activeTabEl.getAttribute('index');
-    let web = document.querySelector(`webview[index="${indx}"]`);
-    removeTab({tab: chromeTabs.activeTabEl, webview: web});
+    if (indx > 1) {
+        let web = document.querySelector(`webview[index="${indx}"]`);
+        removeTab({tab: chromeTabs.activeTabEl, webview: web});
+    }
 }
 
 function getNextIndexAttr() {
