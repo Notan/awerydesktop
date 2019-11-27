@@ -297,7 +297,7 @@
             });
 
             tab.webview.addEventListener('did-finish-load', function () {
-                let icon = 'fa fa-file-text-o';
+                let icon = defaultIcon;
                 try {
                     let reportSerial = JSON.parse(atob(postData.serial.substr(32)));
                     if (typeof reportSerial == 'object' && reportSerial.report_type !== undefined) {

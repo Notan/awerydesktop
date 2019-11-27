@@ -178,12 +178,7 @@ function createWindow() {
 
         const fileName = item.getFilename();
         // const type = item.getMimeType();
-        const extension = fileName.substr(fileName.indexOf('.') + 1, fileName.length);
-
-        const fName = dialog.showSaveDialog({
-            defaultPath: fileName,
-            filters: [{name: extension, extensions: [extension]}]
-        });
+        const extension = fileName.split('.').pop();
 
         item.on('updated', (event, state) => {
             if (state === 'interrupted') {
@@ -196,24 +191,26 @@ function createWindow() {
                 }
             }
         });
+        item.on('done', (event, state) => {
+            if (state === 'completed') {
+                console.log('Download successfully');
+                // item.setSavePath(fName);
+                const currentDatetime = new Date();
+                const formattedDate = currentDatetime.toISOString()
+                    .replace(/T/, ' ')     // replace T with a space
+                    .replace(/\..+/, '');
 
-        if (typeof fName == "undefined") {
-            item.cancel();
-            console.log(`Download failed: ${item.getState()}`)
-        } else {
-            item.setSavePath(fName);
-            const currentDatetime = new Date();
-            const formattedDate = currentDatetime.toISOString()
-                .replace(/T/, ' ')     // replace T with a space
-                .replace(/\..+/, '');
-
-            mainWindow.webContents.send('addNewDownload', {
-                filename: fileName,
-                path: item.getSavePath(),
-                size: Math.round(item.getTotalBytes() / 1024),
-                date: formattedDate
-            });
-        }
+                mainWindow.webContents.send('addNewDownload', {
+                    filename: fileName,
+                    path: item.getSavePath(),
+                    size: Math.round(item.getTotalBytes() / 1024),
+                    date: formattedDate,
+                    extension: extension
+                });
+            } else {
+                console.log(`Download failed: ${state}`)
+            }
+        });
     });
 
     // mainWindow.webContents.on('console-message', (event, level, message, line, sourceId) => {
