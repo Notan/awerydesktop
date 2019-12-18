@@ -4,7 +4,7 @@
     <a ui-sref="app.add" class="add-new-system">Add new system</a>
     <div class="clearfix"></div>
     <div style="font-size: 0; margin-top: 10px;">
-        <button class="awery-switch" ng-class="{'active':$root.loadFrom=='local'}" ng-click="$root.loadFrom=canSelectLocal?'local':'cdn'">Local</button>
+        <button class="awery-switch" ng-class="{'active':$root.loadFrom=='local'}" ng-click="$root.loadFrom=canSelectLocal?'local':'cdn'">Local {{localVersion}}</button>
         <button class="awery-switch" ng-class="{'active':$root.loadFrom=='cdn'}" ng-click="$root.loadFrom='cdn'">Cloud</button>
     </div>
     <div class="clearfix"></div>

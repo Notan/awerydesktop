@@ -7,15 +7,15 @@
     <meta name="keywords"
           content="AngularJS, angular, bootstrap, admin, dashboard, panel, app, charts, components,flat, responsive, layout, kit, ui, route, web, app, widgets"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
-    <link rel="stylesheet" href="../../assets/libs/assets/animate.css/animate.css" type="text/css"/>
-    <link rel="stylesheet" href="../../assets/libs/assets/font-awesome/css/font-awesome.min.css" type="text/css"/>
-    <link rel="stylesheet" href="../../assets/libs/assets/simple-line-icons/css/simple-line-icons.css" type="text/css"/>
-    <link rel="stylesheet" href="../../assets/libs/jquery/bootstrap/dist/css/bootstrap.css" type="text/css"/>
+    <link rel="stylesheet" href="../assets/libs/assets/animate.css/animate.css" type="text/css"/>
+    <link rel="stylesheet" href="../assets/libs/assets/font-awesome/css/font-awesome.min.css" type="text/css"/>
+    <link rel="stylesheet" href="../assets/libs/assets/simple-line-icons/css/simple-line-icons.css" type="text/css"/>
+    <link rel="stylesheet" href="../assets/libs/jquery/bootstrap/dist/css/bootstrap.css" type="text/css"/>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="../../assets/libs/angular/angularjs-toaster/toaster.css" type="text/css"/>
-    <link rel="stylesheet" href="../../assets/css/styles.css" type="text/css"/>
+    <link rel="stylesheet" href="../assets/libs/angular/angularjs-toaster/toaster.css" type="text/css"/>
+    <link rel="stylesheet" href="../assets/css/styles.css" type="text/css"/>
 
-    <link rel="stylesheet" href="../../assets/css/app.min.css">
+    <link rel="stylesheet" href="../assets/css/app.min.css">
 </head>
 <body>
 <div class="app updater">
@@ -37,7 +37,7 @@
 
 <script type="text/javascript">
     let stepsDescriptions = ["Removing old patch", "Downloading UPD patch file", "Flashing patch", "Removing patch", "Update complete!"];
-    let acmUpdate = require('../js/AcmUpdater');
+    let acmUpdate = require('../src/js/AcmUpdater');
     let ipcRenderer = require('electron').ipcRenderer;
     try {
         acmUpdate.update(

@@ -348,9 +348,9 @@ function createWindow() {
         event.sender.send('load-flex-report', FLEX_REPORT_URL, FLEX_REPORT_SERIAL);
     });
 
-    ipcMain.on('update-local-version', function (event) {
+    ipcMain.on('update-local-version', function (event, args) {
         console.info('Need to update!');
-        startAcmUpdate();
+        startAcmUpdate(args);
     });
 
     ipcMain.on('update-ng-local-version', function (event, args) {
@@ -407,19 +407,6 @@ function createWindow() {
         mainWindow.webContents.send('update-complete');
     });
 
-    ipcMain.on('notify', function (event, args) {
-        const acmVersionDescriptor = path.join(userDataPath, '/acm', '/version.as');
-        fs.readFile(acmVersionDescriptor, 'utf8', function (err, data) {
-            let version = 0;
-            version = data.match(/\"([0-9\.]*)\"/);
-            version = version.length > 1 ? parseFloat(version[1]) : 0;
-            notify({
-                title: 'Awery ERP',
-                body: `Flex interface version updated to: ${version}`,
-            });
-        });
-    });
-
     ipcMain.on('online-status-changed', (event, status) => {
         console.log('online-status-changed', status);
 
@@ -432,25 +419,32 @@ function createWindow() {
     });
 }
 
-function startAcmUpdate() {
+function startAcmUpdate(version = 0) {
     if (updateWindowOpened) return false;
 
     updateWindowOpened = true;
-    let updWin = new browserWindow({
-        width: 400,
-        height: 200,
-        fullscreen: false,
-        fullscreenable: false,
-        titleBarAppearsTransparent: true,
-        titleBarStyle: 'hiddenInset',
-        webPreferences: {
-            nodeIntegration: true
-        }
-    });
-    updWin.on('closed', () => {
-        updWin = null
-    });
-    updWin.loadURL(`file://${__dirname}/src/html/acm_update.html`);
+    let acmUpdate = require('./src/js/AcmUpdater');
+    try {
+        acmUpdate.update(
+            (step) => console.log(step),
+            () => {
+                let notify = new Notification({
+                    title: 'Awery ERP',
+                    closeButtonText: 'Close',
+                    actions: [{text: 'Restart', type: 'button'}],
+                    body: `Flex interface version updated to: ${version}`
+                });
+                notify.on('action', (e) => {
+                    app.relaunch();
+                });
+                notify.show();
+                updateWindowOpened = false;
+            },
+            (message) => console.log(message)
+        );
+    } catch (e) {
+        console.error(e);
+    }
 }
 
 function startNgUpdate(version = 0) {

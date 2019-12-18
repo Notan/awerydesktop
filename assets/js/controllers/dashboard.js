@@ -61,7 +61,7 @@ app.controller('DashboardController', ['$scope', '$http', '$rootScope', '$state'
             $scope.cdnVersion = r.length > 1 ? parseFloat(r[1]) : 0;
 
             if ($scope.cdnVersion > $scope.localVersion) {
-                ipcRenderer.send('update-local-version');
+                ipcRenderer.send('update-local-version', $scope.cdnVersion || 0);
             } else {
                 $rootScope.loadFrom = 'local';
                 $scope.canSelectLocal = true;
