@@ -1,6 +1,6 @@
 {
   "name": "Awery_ERP",
-  "version": "0.8.26",
+  "version": "0.8.30",
   "description": "\"Awery ERP\" desktop application",
   "main": "index.js",
   "author": "AweryAero",
@@ -30,7 +30,7 @@
     ],
     "mac": {
       "icon": "./res/images/osx/ic_launcher.icns",
-      "identity": "Awery FZE (WL9ZP5DB23)"
+      "identity": "Apple Development: Yurii Bykov (76B266955C)"
     },
     "dmg": {
       "title": "${productName} ${version} installer",
