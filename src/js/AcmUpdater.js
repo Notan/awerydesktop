@@ -78,18 +78,22 @@ function downloadPatch() {
 
 
     request.on('error', function (err) {
-        fs.unlink(completeTempUpdFilePatch);
-        return mCallOnError(err.message);
+        if (fs.existsSync(completeTempUpdFilePatch)) {
+            fs.unlinkSync(completeTempUpdFilePatch);
+        }
+        return typeof mCallOnError === 'function' ? mCallOnError(err.message) : false;
     });
 
     file.on("error", err => {
         file.close();
 
-        if (err.code === "EEXIST") {
+        if (err.code === "EEXIST" || err.code === "EXIST") {
             return reject("File already exists");
         } else {
-            fs.unlink(completeTempUpdFilePatch); // Delete the file async. (But we don't check the result)
-            return mCallOnError(err.message);
+            if (fs.existsSync(completeTempUpdFilePatch)) {
+                fs.unlinkSync(completeTempUpdFilePatch);
+            } // Delete the file async. (But we don't check the result)
+            return typeof mCallOnError === 'function' ? mCallOnError(err.message) : false;
         }
     });
 

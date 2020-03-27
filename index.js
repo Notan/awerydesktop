@@ -426,7 +426,9 @@ function startAcmUpdate(version = 0) {
     let acmUpdate = require('./src/js/AcmUpdater');
     try {
         acmUpdate.update(
-            (step) => console.log(step),
+            (step) => {
+                console.log(step)
+            },
             () => {
                 let notify = new Notification({
                     title: 'Awery ERP',
@@ -440,7 +442,9 @@ function startAcmUpdate(version = 0) {
                 notify.show();
                 updateWindowOpened = false;
             },
-            (message) => console.log(message)
+            (message) => {
+                console.log(message)
+            }
         );
     } catch (e) {
         console.error(e);
@@ -464,7 +468,8 @@ function startNgUpdate(version = 0) {
                 updNgOpened = false;
                 fs.writeFileSync(`${userDataPath}/acm/apps/version.txt`, `"${version.trim()}"`);
             },
-            () => {
+            (message) => {
+                console.log(message);
             },
             {
                 acmUpdPatchURL: 'http://cdn.awery.com/appsalpha/static.zip',
@@ -540,7 +545,7 @@ exports.clearLocalUiData = function () {
     fx.remove(ngDir)
         .then(() => {
             console.log('remove success!');
-            mainWindow.webContents.send('set-ng-version-as', 0);
+            exports.switchErpSystem();
         })
         .catch(err => console.error(err));
 };
